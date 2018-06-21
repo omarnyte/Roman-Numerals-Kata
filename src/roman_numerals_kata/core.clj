@@ -1,6 +1,6 @@
 (ns roman-numerals-kata.core)
 
-(def roman-arabic-map 
+(def arabic-roman-map 
   { 1 "I" 
     5 "V" 
     10 "X" 
@@ -18,12 +18,12 @@
 (defn next-up
   ([num] 
   (first (filter #(<= num %) 
-                 (keys roman-arabic-map)))))
+                 (keys arabic-roman-map)))))
 
 (defn next-down
   ([num] 
   (last (filter #(>= num %) 
-                 (keys roman-arabic-map)))))
+                 (keys arabic-roman-map)))))
 
 (defn next-repeatable-down
   ([num] 
@@ -35,13 +35,22 @@
   (if (<= (/ num (next-repeatable-down num)) 3)
       true 
       false))
+
+(defn perfect-arabic-num?
+  [num]
+  (if (get arabic-roman-map num)
+      true
+      false)) 
                 
 (defn convert-roman-to-arabic
   [num]
-  (if (some? (map #(= 3 (/ % 3)) 
-                  (keys repeatable-map)))     
-      (apply str (repeat num "I"))
-      (if (= 1 (- (next-up num) num))
-          (str "I" (get roman-arabic-map 
-                        (next-up num)))
-          (str "V" (convert-roman-to-arabic (- num 5))))))
+  (if (perfect-arabic-num? num)
+      (get arabic-roman-map num)
+      (if (repeatable? num)
+          (apply str (repeat (/ num (next-repeatable-down num))
+                            (get repeatable-map 
+                                  (next-repeatable-down num))))
+          (if (= 1 (- (next-up num) num))
+              (str "I" (get arabic-roman-map 
+                            (next-up num)))
+              (str "V" (convert-roman-to-arabic (- num 5)))))))
